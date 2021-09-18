@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useAtom } from "jotai";
 
 import {
   Remirror,
@@ -12,6 +13,13 @@ import { Block } from "baseui/block";
 import { Button, KIND as BUTTON_KIND } from "baseui/button";
 
 import { EXTENSIONS } from "./extensions";
+import {
+  ProgrammingLanguageSelectionModal,
+  SELECT_PROGRAMMING_LANGUAGE_MODAL_OPEN_ATOM
+} from "./ProgrammingLanguageSelectionModal";
+import type { ILanguageOption } from "./ProgrammingLanguageSelectionModal";
+import { LinkModal, LINK_MODAL_OPEN_ATOM } from "./LinkModal";
+import { ImageUploadModal, IMAGE_MODAL_OPEN_ATOM } from "./ImageUploadModal";
 
 export const Editor = () => {
   const { manager } = useRemirror({ extensions: EXTENSIONS });
@@ -25,6 +33,11 @@ export const Editor = () => {
 
 export const InternalEditor = () => {
   const active = useActive();
+  const [, setSelectProgrammingLanguageSelectionModal] = useAtom(
+    SELECT_PROGRAMMING_LANGUAGE_MODAL_OPEN_ATOM
+  );
+  const [, setLinkModal] = useAtom(LINK_MODAL_OPEN_ATOM);
+  const [, setImageModal] = useAtom(IMAGE_MODAL_OPEN_ATOM);
 
   const c = useCommands();
 
@@ -48,18 +61,42 @@ export const InternalEditor = () => {
   const handleToggleUl = React.useCallback(() => c.toggleBulletList(), [c]);
   const handleToggleOl = React.useCallback(() => c.toggleOrderedList(), [c]);
   const handleToggleQuote = React.useCallback(() => c.toggleBlockquote(), [c]);
-  const handleToggleCode = React.useCallback(
-    () => c.toggleCodeBlock({ language: "typescript" }),
+  const handleToggleCode = React.useCallback(() => {
+    if (active.codeBlock()) {
+      c.toggleCodeBlock({});
+      c.toggleCodeBlock({});
+    } else {
+      setSelectProgrammingLanguageSelectionModal(true);
+    }
+  }, [c, setSelectProgrammingLanguageSelectionModal, active]);
+  const handleProgrammingLanguageSelectionModalSubmit = React.useCallback(
+    (language: ILanguageOption) => {
+      c.createCodeBlock({ language: language.value });
+    },
     [c]
   );
   const handleAddHr = React.useCallback(() => c.insertHorizontalRule(), [c]);
-  const handleAddLink = React.useCallback(
-    () => c.updateLink({ href: "https://google.com" }),
+  const handleAddLink = React.useCallback(() => {
+    if (active.link()) {
+      c.removeLink();
+    } else {
+      setLinkModal(true);
+    }
+  }, [c, active, setLinkModal]);
+  const handleLinkModalSubmit = React.useCallback(
+    (href: string) => {
+      c.updateLink({ href });
+    },
     [c]
   );
-  const handleAddPicture = React.useCallback(
-    () =>
-      c.insertImage({ src: `https://picsum.photos/200/300?${Math.random}` }),
+  const handleAddImage = React.useCallback(() => {
+    setImageModal(true);
+  }, [setImageModal]);
+
+  const handleImageModalSubmit = React.useCallback(
+    (src: string, alt: string) => {
+      c.insertImage({ src, alt });
+    },
     [c]
   );
 
@@ -164,13 +201,18 @@ export const InternalEditor = () => {
         <Button onClick={handleAddLink} kind={BUTTON_KIND.secondary}>
           {"Link"}
         </Button>
-        <Button onClick={handleAddPicture} kind={BUTTON_KIND.secondary}>
+        <Button onClick={handleAddImage} kind={BUTTON_KIND.secondary}>
           {"Img"}
         </Button>
       </Block>
       <Block className="remirror-theme">
         <EditorComponent />
       </Block>
+      <ProgrammingLanguageSelectionModal
+        onSubmit={handleProgrammingLanguageSelectionModalSubmit}
+      />
+      <LinkModal onSubmit={handleLinkModalSubmit} />
+      <ImageUploadModal onSubmit={handleImageModalSubmit} />
     </Block>
   );
 };
