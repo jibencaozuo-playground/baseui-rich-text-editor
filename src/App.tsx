@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { Index } from "pages/index/Index";
 
 function App() {
