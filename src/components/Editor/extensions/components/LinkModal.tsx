@@ -26,33 +26,33 @@ export const LinkModal: React.FC<
     [setState]
   );
 
-  const [url, setUrl] = useAtom(LINK_URL_ATOM);
+  const [href, setHref] = useAtom(LINK_URL_ATOM);
 
   const handleClose = React.useCallback(() => {
     setIsOpen(false);
-    setUrl(undefined);
-  }, [setIsOpen, setUrl]);
+    setHref(undefined);
+  }, [setIsOpen, setHref]);
 
   const handleUrlChange = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setUrl(event.currentTarget.value);
+      setHref(event.currentTarget.value);
     },
-    [setUrl]
+    [setHref]
   );
 
   const handleSubmit = React.useCallback(() => {
-    if (url) {
-      commands.updateLink(url);
+    if (href) {
+      commands.updateLink({ href });
     }
 
     handleClose();
-  }, [commands, url, handleClose]);
+  }, [commands, href, handleClose]);
 
   return (
     <Modal onClose={handleClose} isOpen={isOpen}>
       <ModalHeader>插入链接</ModalHeader>
       <ModalBody>
-        <Input onChange={handleUrlChange} value={url || ""} />
+        <Input onChange={handleUrlChange} value={href || ""} />
       </ModalBody>
       <ModalFooter>
         <ModalButton onClick={handleClose}>取消</ModalButton>
