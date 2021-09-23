@@ -17,10 +17,10 @@ const extension: IExtensionFunction<
 > = () => ({
   id: "jbcz.base.link",
   initialize: () => new LinkExtension({ autoLink: true }),
-  initialState: { modalOpen: true },
+  initialState: { modalOpen: false },
   getIcon: () => "Link",
   getName: () => "Code",
-  getActive: (a) => a.codeBlock(),
+  getActive: (a) => a.link(),
   onIconClick: (_, __, setState) => setState({ modalOpen: true }),
   AdditionalContent: LinkModal
 });

@@ -16,11 +16,11 @@ const extension: IExtensionFunction<
 > = () => ({
   id: "jbcz.base.image",
   initialize: () => new ImageExtension({ enableResizing: true }),
-  initialState: { modalOpen: true },
+  initialState: { modalOpen: false },
   getIcon: () => "Img",
   getName: () => "Image",
   getActive: () => false,
-  onIconClick: (c) => c.toggleBold(),
+  onIconClick: (_, __, setState) => setState({ modalOpen: true }),
   AdditionalContent: ImageUploadModal
 });
 
