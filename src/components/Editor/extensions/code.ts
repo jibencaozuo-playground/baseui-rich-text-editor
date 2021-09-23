@@ -44,7 +44,7 @@ const extension: IExtensionFunction<
   getIcon: () => "</>",
   getName: () => "Code",
   getActive: (a) => a.codeBlock(),
-  initialState: { modalOpen: true },
+  initialState: { modalOpen: false },
   onIconClick: (_, __, setState) => setState({ modalOpen: true }),
   AdditionalContent: CodeLanguageSelectionModal
 });
