@@ -38,6 +38,8 @@ export const EXTENSIONS = () =>
     new SupExtension(),
     new SubExtension(),
     new HeadingExtension(),
+    new HeadingExtension(),
+    new HeadingExtension(),
     //
     new BulletListExtension(),
     new OrderedListExtension(),

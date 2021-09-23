@@ -1839,6 +1839,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jbcz/react-editor@workspace:."
   dependencies:
+    "@react-hookz/web": ^9.0.0
     "@remirror/pm": 1.0.2
     "@remirror/react": 1.0.9
     "@testing-library/jest-dom": 5.11.4
@@ -2206,6 +2207,24 @@ __metadata:
     react: ^16.8.0 || 17.x
     react-dom: ^16.8.0 || 17.x
   checksum: 387f0ddc5375590ced9d6a90a84d39a30bd11b8d39eaff6cbb005415b44c011861c897111e7734562916172b2ec2114111d3f0952b5795faf43822bc44ae3f14
+  languageName: node
+  linkType: hard
+
+"@react-hookz/web@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "@react-hookz/web@npm:9.0.0"
+  dependencies:
+    "@types/js-cookie": ^2.2.7
+    "@types/react": ^17.0.19
+    "@types/react-dom": ^17.0.9
+  peerDependencies:
+    js-cookie: ^3.0.0
+    react: ^16.8 || ^17
+    react-dom: ^16.8 || ^17
+  peerDependenciesMeta:
+    js-cookie:
+      optional: true
+  checksum: 92098b45075d2bb5da9fa71524b9cf52a91cfdeabeea86d7130fb8b012b1cfa90590572acde0975c2acf128fd688b4d76facde0dd69c89d2d93456546af0f467
   languageName: node
   linkType: hard
 
@@ -3978,7 +3997,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/js-cookie@npm:^2.2.6":
+"@types/js-cookie@npm:^2.2.6, @types/js-cookie@npm:^2.2.7":
   version: 2.2.7
   resolution: "@types/js-cookie@npm:2.2.7"
   checksum: 851f47e94ca1fc43661d8f51614d67a613e7810c91b876d0a3b311ce72f7df800107fd02a08cb6948184e12c120b4f058edca2f50424d8798bdcffd6627281e3
@@ -4254,6 +4273,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-dom@npm:^17.0.9":
+  version: 17.0.9
+  resolution: "@types/react-dom@npm:17.0.9"
+  dependencies:
+    "@types/react": "*"
+  checksum: b7e898e1a22643a371f58e801a3d1d8cf13a82d77063c24be73e840ef8d877ca1d04adc5db168d0dac3167dc050a26b1d70efc5fe8566a7f46a3c488a8322989
+  languageName: node
+  linkType: hard
+
 "@types/react@npm:*":
   version: 17.0.21
   resolution: "@types/react@npm:17.0.21"
@@ -4272,6 +4300,17 @@ __metadata:
     "@types/prop-types": "*"
     csstype: ^3.0.2
   checksum: 0767d1c635613cb08de1ad6b8f73e3ee01ae0069733fa56382c72a8dbed741849e74f62a17756c7b76ccd2b57dd9891d5767c3134f35788720c6bb9c186a933b
+  languageName: node
+  linkType: hard
+
+"@types/react@npm:^17.0.19":
+  version: 17.0.24
+  resolution: "@types/react@npm:17.0.24"
+  dependencies:
+    "@types/prop-types": "*"
+    "@types/scheduler": "*"
+    csstype: ^3.0.2
+  checksum: 99383e2cbaa85831984cc17ec4a5fe7fd091aa21ef023855570440d8d0b5038efb8159701e8e2a0f6ddff3efae655922ded690190e7d172653608cbde016cb66
   languageName: node
   linkType: hard
 

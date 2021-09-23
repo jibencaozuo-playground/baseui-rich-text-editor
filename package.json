@@ -29,6 +29,7 @@
     ]
   },
   "dependencies": {
+    "@react-hookz/web": "^9.0.0",
     "@remirror/pm": "1.0.2",
     "@remirror/react": "1.0.9",
     "@testing-library/jest-dom": "5.11.4",

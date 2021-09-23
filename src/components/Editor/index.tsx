@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useAtom } from "jotai";
+import { useMap } from "@react-hookz/web";
 
 import {
   Remirror,
@@ -10,209 +10,114 @@ import {
 } from "@remirror/react";
 
 import { Block } from "baseui/block";
-import { Button, KIND as BUTTON_KIND } from "baseui/button";
+import { Button } from "baseui/button";
+import { ButtonGroup } from "baseui/button-group";
 
-import { EXTENSIONS } from "./extensions";
-import {
-  ProgrammingLanguageSelectionModal,
-  SELECT_PROGRAMMING_LANGUAGE_MODAL_OPEN_ATOM
-} from "./ProgrammingLanguageSelectionModal";
-import type { ILanguageOption } from "./ProgrammingLanguageSelectionModal";
-import { LinkModal, LINK_MODAL_OPEN_ATOM } from "./LinkModal";
-import { ImageUploadModal, IMAGE_MODAL_OPEN_ATOM } from "./ImageUploadModal";
+import type { IExtension } from "./extensions/typing";
+import { AnyExtension } from "@remirror/core";
 
-export const Editor = () => {
-  const { manager } = useRemirror({ extensions: EXTENSIONS });
+interface IEditorProps {
+  extensions: Readonly<IExtension<string, any, any>[]>;
+}
+
+export const Editor: React.FC<IEditorProps> = ({ extensions }) => {
+  const remirrorExtensions = React.useCallback(() => {
+    return extensions
+      .map((x) => x.initialize?.())
+      .filter((x) => !!x) as AnyExtension[];
+  }, [extensions]);
+
+  const { manager } = useRemirror({ extensions: remirrorExtensions });
 
   return (
     <Remirror manager={manager}>
-      <InternalEditor />
+      <InternalEditor extensions={extensions} />
     </Remirror>
   );
 };
 
-export const InternalEditor = () => {
+interface IInternalEditorProps {
+  extensions: IEditorProps["extensions"];
+}
+
+export const InternalEditor: React.FC<IInternalEditorProps> = ({
+  extensions
+}) => {
   const active = useActive();
-  const [, setSelectProgrammingLanguageSelectionModal] = useAtom(
-    SELECT_PROGRAMMING_LANGUAGE_MODAL_OPEN_ATOM
-  );
-  const [, setLinkModal] = useAtom(LINK_MODAL_OPEN_ATOM);
-  const [, setImageModal] = useAtom(IMAGE_MODAL_OPEN_ATOM);
+  const commands = useCommands();
 
-  const c = useCommands();
+  const initialState = React.useMemo(() => {
+    return extensions.map((extension) => {
+      return [
+        extension.id, 
+        Object.assign({}, extension.initialState)
+      ] as const;
+    });
+  }, [extensions]);
 
-  const handleToggleBold = React.useCallback(() => c.toggleBold(), [c]);
-  const handleToggleItalic = React.useCallback(() => c.toggleItalic(), [c]);
-  const handleToggleStrike = React.useCallback(() => c.toggleStrike(), [c]);
-  const handleToggleSup = React.useCallback(() => c.toggleSuperscript(), [c]);
-  const handleToggleSub = React.useCallback(() => c.toggleSubscript(), [c]);
-  const handleToggleH1 = React.useCallback(
-    () => c.toggleHeading({ level: 1 }),
-    [c]
-  );
-  const handleToggleH2 = React.useCallback(
-    () => c.toggleHeading({ level: 2 }),
-    [c]
-  );
-  const handleToggleH3 = React.useCallback(
-    () => c.toggleHeading({ level: 3 }),
-    [c]
-  );
-  const handleToggleUl = React.useCallback(() => c.toggleBulletList(), [c]);
-  const handleToggleOl = React.useCallback(() => c.toggleOrderedList(), [c]);
-  const handleToggleQuote = React.useCallback(() => c.toggleBlockquote(), [c]);
-  const handleToggleCode = React.useCallback(() => {
-    if (active.codeBlock()) {
-      c.toggleCodeBlock({});
-      c.toggleCodeBlock({});
-    } else {
-      setSelectProgrammingLanguageSelectionModal(true);
-    }
-  }, [c, setSelectProgrammingLanguageSelectionModal, active]);
-  const handleProgrammingLanguageSelectionModalSubmit = React.useCallback(
-    (language: ILanguageOption) => {
-      c.createCodeBlock({ language: language.value });
-    },
-    [c]
-  );
-  const handleAddHr = React.useCallback(() => c.insertHorizontalRule(), [c]);
-  const handleAddLink = React.useCallback(() => {
-    if (active.link()) {
-      c.removeLink();
-    } else {
-      setLinkModal(true);
-    }
-  }, [c, active, setLinkModal]);
-  const handleLinkModalSubmit = React.useCallback(
-    (href: string) => {
-      c.updateLink({ href });
-    },
-    [c]
-  );
-  const handleAddImage = React.useCallback(() => {
-    setImageModal(true);
-  }, [setImageModal]);
+  const stateMap = useMap<string, any>(initialState);
 
-  const handleImageModalSubmit = React.useCallback(
-    (src: string, alt: string) => {
-      c.insertImage({ src, alt });
-    },
-    [c]
-  );
+  const setStates = React.useMemo(() => {
+    const result: Record<string, (x: any) => void> = {};
+
+    extensions.forEach((extension) => {
+      result[extension.id] = (state: any) => {
+        stateMap.set(extension.id, state);
+      };
+    });
+
+    return result;
+  }, [extensions, stateMap]);
+
+  const handleButtonClickCallbacks = React.useMemo(() => {
+    const result: Record<string, () => void> = {};
+
+    extensions.forEach((extension) => {
+      result[extension.id] = () => {
+        extension.onIconClick(
+          commands,
+          stateMap.get(extension.id),
+          setStates[extension.id]
+        );
+      };
+    });
+
+    return result;
+  }, [commands, extensions, setStates, stateMap]);
 
   return (
     <Block>
-      <Block>
-        <Button
-          onClick={handleToggleBold}
-          kind={active.bold() ? BUTTON_KIND.primary : BUTTON_KIND.secondary}
-        >
-          B
-        </Button>
-        <Button
-          onClick={handleToggleItalic}
-          kind={active.italic() ? BUTTON_KIND.primary : BUTTON_KIND.secondary}
-        >
-          I
-        </Button>
-        <Button
-          onClick={handleToggleStrike}
-          kind={active.strike() ? BUTTON_KIND.primary : BUTTON_KIND.secondary}
-        >
-          S
-        </Button>
-        <Button
-          onClick={handleToggleSup}
-          kind={active.sup() ? BUTTON_KIND.primary : BUTTON_KIND.secondary}
-        >
-          ^
-        </Button>
-        <Button
-          onClick={handleToggleSub}
-          kind={active.sub() ? BUTTON_KIND.primary : BUTTON_KIND.secondary}
-        >
-          _
-        </Button>
-        <Button
-          onClick={handleToggleH1}
-          kind={
-            active.heading({ level: 1 })
-              ? BUTTON_KIND.primary
-              : BUTTON_KIND.secondary
-          }
-        >
-          H<sub>1</sub>
-        </Button>
-        <Button
-          onClick={handleToggleH2}
-          kind={
-            active.heading({ level: 2 })
-              ? BUTTON_KIND.primary
-              : BUTTON_KIND.secondary
-          }
-        >
-          H<sub>2</sub>
-        </Button>
-        <Button
-          onClick={handleToggleH3}
-          kind={
-            active.heading({ level: 3 })
-              ? BUTTON_KIND.primary
-              : BUTTON_KIND.secondary
-          }
-        >
-          H<sub>3</sub>
-        </Button>
-        <Button
-          onClick={handleToggleUl}
-          kind={
-            active.bulletList() ? BUTTON_KIND.primary : BUTTON_KIND.secondary
-          }
-        >
-          ul
-        </Button>
-        <Button
-          onClick={handleToggleOl}
-          kind={
-            active.orderedList() ? BUTTON_KIND.primary : BUTTON_KIND.secondary
-          }
-        >
-          ol
-        </Button>
-        <Button
-          onClick={handleToggleQuote}
-          kind={
-            active.blockquote() ? BUTTON_KIND.primary : BUTTON_KIND.secondary
-          }
-        >
-          ""
-        </Button>
-        <Button
-          onClick={handleToggleCode}
-          kind={
-            active.codeBlock() ? BUTTON_KIND.primary : BUTTON_KIND.secondary
-          }
-        >
-          {"</>"}
-        </Button>
-        <Button onClick={handleAddHr} kind={BUTTON_KIND.secondary}>
-          {"hr"}
-        </Button>
-        <Button onClick={handleAddLink} kind={BUTTON_KIND.secondary}>
-          {"Link"}
-        </Button>
-        <Button onClick={handleAddImage} kind={BUTTON_KIND.secondary}>
-          {"Img"}
-        </Button>
+      <Block display="flex">
+        {extensions.map((x) => (
+          <ButtonGroup
+            key={x.id}
+            mode="checkbox"
+            selected={x.getActive(active) ? [0] : []}
+          >
+            <Button onClick={handleButtonClickCallbacks[x.id]}>
+              {x.getIcon()}
+            </Button>
+          </ButtonGroup>
+        ))}
       </Block>
       <Block className="remirror-theme">
         <EditorComponent />
       </Block>
-      <ProgrammingLanguageSelectionModal
-        onSubmit={handleProgrammingLanguageSelectionModalSubmit}
-      />
-      <LinkModal onSubmit={handleLinkModalSubmit} />
-      <ImageUploadModal onSubmit={handleImageModalSubmit} />
+      {extensions.map((x) => {
+        const Component = x.AdditionalContent;
+
+        if (!Component) return null;
+
+        return (
+          <Component
+            key={x.id}
+            state={stateMap.get(x.id)}
+            setState={setStates[x.id]}
+            commands={commands}
+            active={active}
+          />
+        );
+      })}
     </Block>
   );
 };
