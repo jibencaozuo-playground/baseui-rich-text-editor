@@ -1,0 +1,29 @@
+.editorComponentBox {
+  --rmr-radius-border: var(--overrides-rmr-radius-border) !important;
+  --rmr-color-text: var(--overrides-rmr-color-text) !important;
+  :global(.ProseMirror) {
+    font-size: 14px;
+    padding: 0 !important;
+    color: var(--rmr-color-text);
+    &, &:active, &:focus {
+      box-shadow: none !important;
+    }
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+    &::-webkit-scrollbar-track {
+      background: var(--background-global);
+    }
+    &::-webkit-scrollbar-thumb {
+      border: 2px var(--background-global) solid;
+      background: var(--background-content-enhance);
+      &:hover {
+        background: var(--primary-normal);
+      }
+    }
+  }
+}
+
+.editorButton {
+  fill: #C4C4C4;
+}

@@ -16,6 +16,10 @@ import { ButtonGroup } from "baseui/button-group";
 import type { IExtension } from "./extensions/typing";
 import { AnyExtension } from "@remirror/core";
 
+import styles from './editor.module.scss';
+import cn from 'classnames'
+import { useStyletron } from 'baseui';
+
 interface IEditorProps {
   extensions: Readonly<IExtension<string, any, any>[]>;
 }
@@ -45,6 +49,7 @@ export const InternalEditor: React.FC<IInternalEditorProps> = ({
 }) => {
   const active = useActive();
   const commands = useCommands();
+  const [css, theme] = useStyletron();
 
   const initialState = React.useMemo(() => {
     return extensions.map((extension) => {
@@ -85,8 +90,31 @@ export const InternalEditor: React.FC<IInternalEditorProps> = ({
     return result;
   }, [commands, extensions, setStates, stateMap]);
 
+  const baseButtonStyle = {
+    width: '48px',
+    height: '28px',
+    paddingLeft: 0,
+    paddingRight: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
+    color: '#C4C4C4',
+    ':hover': {
+      color: '#00ABCF',
+    }
+  }
+
   return (
-    <Block>
+    <Block
+      backgroundColor="backgroundTertiary"
+      overrides={{
+        Block: {
+          style: {
+            '--overrides-rmr-radius-border': '0',
+            '--overrides-rmr-color-text': theme.colors.primary,
+          },
+        },
+      }}
+    >
       <Block display="flex">
         {extensions.map((x) => (
           <ButtonGroup
@@ -94,13 +122,20 @@ export const InternalEditor: React.FC<IInternalEditorProps> = ({
             mode="checkbox"
             selected={x.getActive(active) ? [0] : []}
           >
-            <Button onClick={handleButtonClickCallbacks[x.id]}>
+            <Button
+              onClick={handleButtonClickCallbacks[x.id]}
+              overrides={{
+                BaseButton: {
+                  style: baseButtonStyle
+                }
+              }}
+            >
               {x.getIcon()}
             </Button>
           </ButtonGroup>
         ))}
       </Block>
-      <Block className="remirror-theme">
+      <Block className={cn('remirror-theme', styles.editorComponentBox)}>
         <EditorComponent />
       </Block>
       {extensions.map((x) => {
