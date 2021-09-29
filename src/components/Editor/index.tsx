@@ -10,7 +10,7 @@ import {
 } from "@remirror/react";
 
 import { Block } from "baseui/block";
-import { Button } from "baseui/button";
+import { Button, ButtonOverrides } from "baseui/button";
 import { ButtonGroup } from "baseui/button-group";
 
 import type { IExtension } from "./extensions/typing";
@@ -20,11 +20,19 @@ import styles from './editor.module.scss';
 import cn from 'classnames'
 import { useStyletron } from 'baseui';
 
+import merge from 'lodash.merge'
+
 interface IEditorProps {
   extensions: Readonly<IExtension<string, any, any>[]>;
+  editorClassName?: string;
+  buttonOverrides?: ButtonOverrides;
 }
 
-export const Editor: React.FC<IEditorProps> = ({ extensions }) => {
+export const Editor: React.FC<IEditorProps> = ({
+  extensions,
+  editorClassName,
+  buttonOverrides,
+}) => {
   const remirrorExtensions = React.useCallback(() => {
     return extensions
       .map((x) => x.initialize?.())
@@ -35,17 +43,25 @@ export const Editor: React.FC<IEditorProps> = ({ extensions }) => {
 
   return (
     <Remirror manager={manager}>
-      <InternalEditor extensions={extensions} />
+      <InternalEditor
+        extensions={extensions}
+        editorClassName={editorClassName}
+        buttonOverrides={buttonOverrides}
+      />
     </Remirror>
   );
 };
 
 interface IInternalEditorProps {
   extensions: IEditorProps["extensions"];
+  editorClassName?: string;
+  buttonOverrides?: ButtonOverrides;
 }
 
 export const InternalEditor: React.FC<IInternalEditorProps> = ({
-  extensions
+  extensions,
+  editorClassName,
+  buttonOverrides,
 }) => {
   const active = useActive();
   const commands = useCommands();
@@ -90,18 +106,25 @@ export const InternalEditor: React.FC<IInternalEditorProps> = ({
     return result;
   }, [commands, extensions, setStates, stateMap]);
 
-  const baseButtonStyle = {
-    width: '48px',
-    height: '28px',
-    paddingLeft: 0,
-    paddingRight: 0,
-    paddingTop: 0,
-    paddingBottom: 0,
-    color: '#C4C4C4',
-    ':hover': {
-      color: '#00ABCF',
-    }
-  }
+  const baseButtonOverrides = React.useMemo<ButtonOverrides>(()=>{
+    return merge({
+      BaseButton: {
+      style: {
+          width: '48px',
+          height: '28px',
+          paddingLeft: 0,
+          paddingRight: 0,
+          paddingTop: 0,
+          paddingBottom: 0,
+          color: '#C4C4C4',
+          ':hover': {
+            color: '#00ABCF',
+          }
+        }
+      }
+    }, buttonOverrides)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [buttonOverrides])
 
   return (
     <Block
@@ -124,18 +147,18 @@ export const InternalEditor: React.FC<IInternalEditorProps> = ({
           >
             <Button
               onClick={handleButtonClickCallbacks[x.id]}
-              overrides={{
-                BaseButton: {
-                  style: baseButtonStyle
-                }
-              }}
+              overrides={baseButtonOverrides}
             >
               {x.getIcon()}
             </Button>
           </ButtonGroup>
         ))}
       </Block>
-      <Block className={cn('remirror-theme', styles.editorComponentBox)}>
+      <Block className={cn(
+        editorClassName,
+        'remirror-theme',
+        styles.editorComponentBox
+      )}>
         <EditorComponent />
       </Block>
       {extensions.map((x) => {
