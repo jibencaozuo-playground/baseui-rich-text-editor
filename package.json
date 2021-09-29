@@ -1,8 +1,8 @@
 {
-  "name": "@jbcz/react-editor",
+  "name": "@jbcz/baseui-rich-text-editor",
   "version": "0.0.0-dev.0",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
+  "main": "dist/index.tsx",
+  "module": "dist/index.tsx",
   "scripts": {
     "start": "react-scripts start",
     "build:cra": "react-scripts build",

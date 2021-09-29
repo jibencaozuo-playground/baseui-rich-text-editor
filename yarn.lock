@@ -1835,9 +1835,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jbcz/react-editor@workspace:.":
+"@jbcz/baseui-rich-text-editor@workspace:.":
   version: 0.0.0-use.local
-  resolution: "@jbcz/react-editor@workspace:."
+  resolution: "@jbcz/baseui-rich-text-editor@workspace:."
   dependencies:
     "@react-hookz/web": ^9.0.0
     "@remirror/pm": 1.0.2
