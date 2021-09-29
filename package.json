@@ -1,8 +1,15 @@
 {
-  "name": "@jbcz/react-editor",
+  "name": "@jbcz/baseui-rich-text-editor",
   "version": "0.0.0-dev.0",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
+  "main": "dist/index.tsx",
+  "module": "dist/index.tsx",
+  "license": "MIT",
+  "maintainers": [
+    {
+      "name": "Jibencaozuo Playground",
+      "email": "dev@jibencaozuo.com"
+    }
+  ],
   "scripts": {
     "start": "react-scripts start",
     "build:cra": "react-scripts build",
@@ -10,6 +17,10 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
+  "files": [
+    "bin/**/*",
+    "dist/**/*"
+  ],
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -61,7 +72,6 @@
     "babel-cli": "^6.26.0",
     "babel-preset-react-app": "^10.0.0",
     "cross-env": "^7.0.3",
-    "crossenv": "^0.0.2-security",
     "del-cli": "^4.0.1",
     "make-dir-cli": "^3.0.0"
   }

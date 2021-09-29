@@ -8,11 +8,11 @@ import {
   useActive,
   useCommands
 } from "@remirror/react";
+import type { EditorState } from "@remirror/core";
 
 import { Block } from "baseui/block";
 import { Button, ButtonOverrides } from "baseui/button";
 import { ButtonGroup } from "baseui/button-group";
-
 import type { IExtension } from "./extensions/typing";
 import { AnyExtension } from "@remirror/core";
 
@@ -22,27 +22,59 @@ import { useStyletron } from 'baseui';
 
 import merge from 'lodash.merge'
 
+
+interface EditorChangeEvent {
+  target: IEditorRef;
+  currentTarget: IEditorRef;
+}
+        
 interface IEditorProps {
   extensions: Readonly<IExtension<string, any, any>[]>;
+  onChange?: (event: EditorChangeEvent) => void;
   editorClassName?: string;
   buttonOverrides?: ButtonOverrides;
 }
 
-export const Editor: React.FC<IEditorProps> = ({
-  extensions,
-  editorClassName,
-  buttonOverrides,
-}) => {
+interface IEditorRef {
+  value: EditorState;
+}
+
+const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = ({
+  extensions = [],
+  onChange
+}, ref) => {
   const remirrorExtensions = React.useCallback(() => {
     return extensions
       .map((x) => x.initialize?.())
       .filter((x) => !!x) as AnyExtension[];
   }, [extensions]);
 
-  const { manager } = useRemirror({ extensions: remirrorExtensions });
+  const { manager, state, setState } = useRemirror({
+    extensions: remirrorExtensions
+  });
+
+  const mockValue = React.useMemo(() => {
+    return {
+      get value() {
+        return state;
+      },
+      set value(x) {
+        setState(x);
+      }
+    };
+  }, [state, setState]);
+
+  React.useImperativeHandle(ref, () => mockValue, [mockValue]);
+
+  const handleChange = () => {
+    onChange?.({
+      target: mockValue,
+      currentTarget: mockValue
+    });
+  };
 
   return (
-    <Remirror manager={manager}>
+    <Remirror manager={manager} onChange={handleChange}>
       <InternalEditor
         extensions={extensions}
         editorClassName={editorClassName}
@@ -52,6 +84,8 @@ export const Editor: React.FC<IEditorProps> = ({
   );
 };
 
+export const Editor = React.forwardRef(_Editor);
+
 interface IInternalEditorProps {
   extensions: IEditorProps["extensions"];
   editorClassName?: string;
@@ -59,7 +93,7 @@ interface IInternalEditorProps {
 }
 
 export const InternalEditor: React.FC<IInternalEditorProps> = ({
-  extensions,
+  extensions = [],
   editorClassName,
   buttonOverrides,
 }) => {
@@ -69,10 +103,7 @@ export const InternalEditor: React.FC<IInternalEditorProps> = ({
 
   const initialState = React.useMemo(() => {
     return extensions.map((extension) => {
-      return [
-        extension.id, 
-        Object.assign({}, extension.initialState)
-      ] as const;
+      return [extension.id, Object.assign({}, extension.initialState)] as const;
     });
   }, [extensions]);
 
