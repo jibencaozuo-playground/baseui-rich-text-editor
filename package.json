@@ -3,6 +3,13 @@
   "version": "0.0.0-dev.0",
   "main": "dist/index.tsx",
   "module": "dist/index.tsx",
+  "license": "MIT",
+  "maintainers": [
+    {
+      "name": "Jibencaozuo Playground",
+      "email": "dev@jibencaozuo.com"
+    }
+  ],
   "scripts": {
     "start": "react-scripts start",
     "build:cra": "react-scripts build",
@@ -10,6 +17,10 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
+  "files": [
+    "bin/**/*",
+    "dist/**/*"
+  ],
   "eslintConfig": {
     "extends": [
       "react-app",
