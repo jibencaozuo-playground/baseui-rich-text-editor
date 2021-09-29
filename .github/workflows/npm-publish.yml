@@ -17,4 +17,4 @@ jobs:
           node-version: 14
       - run: yarn install
       - run: yarn config set npmAuthToken ${{secrets.NPM_TOKEN}}
-      - run: yarn npm publish
+      - run: yarn npm publish --access public

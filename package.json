@@ -68,7 +68,6 @@
     "babel-cli": "^6.26.0",
     "babel-preset-react-app": "^10.0.0",
     "cross-env": "^7.0.3",
-    "crossenv": "^0.0.2-security",
     "del-cli": "^4.0.1",
     "make-dir-cli": "^3.0.0"
   }
