@@ -8,50 +8,84 @@ import {
   useActive,
   useCommands
 } from "@remirror/react";
+import type { EditorState } from "@remirror/core";
 
 import { Block } from "baseui/block";
 import { Button } from "baseui/button";
 import { ButtonGroup } from "baseui/button-group";
-
 import type { IExtension } from "./extensions/typing";
 import { AnyExtension } from "@remirror/core";
 
-interface IEditorProps {
-  extensions: Readonly<IExtension<string, any, any>[]>;
+interface EditorChangeEvent {
+  target: IEditorRef;
+  currentTarget: IEditorRef;
 }
 
-export const Editor: React.FC<IEditorProps> = ({ extensions }) => {
+interface IEditorProps {
+  extensions?: Readonly<IExtension<string, any, any>[]>;
+  onChange?: (event: EditorChangeEvent) => void;
+}
+
+interface IEditorRef {
+  value: EditorState;
+}
+
+const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = ({
+  extensions = [],
+  onChange
+}, ref) => {
   const remirrorExtensions = React.useCallback(() => {
     return extensions
       .map((x) => x.initialize?.())
       .filter((x) => !!x) as AnyExtension[];
   }, [extensions]);
 
-  const { manager } = useRemirror({ extensions: remirrorExtensions });
+  const { manager, state, setState } = useRemirror({
+    extensions: remirrorExtensions
+  });
+
+  const mockValue = React.useMemo(() => {
+    return {
+      get value() {
+        return state;
+      },
+      set value(x) {
+        setState(x);
+      }
+    };
+  }, [state, setState]);
+
+  React.useImperativeHandle(ref, () => mockValue, [mockValue]);
+
+  const handleChange = () => {
+    onChange?.({
+      target: mockValue,
+      currentTarget: mockValue
+    });
+  };
 
   return (
-    <Remirror manager={manager}>
+    <Remirror manager={manager} onChange={handleChange}>
       <InternalEditor extensions={extensions} />
     </Remirror>
   );
 };
+
+export const Editor = React.forwardRef(_Editor);
 
 interface IInternalEditorProps {
   extensions: IEditorProps["extensions"];
 }
 
 export const InternalEditor: React.FC<IInternalEditorProps> = ({
-  extensions
+  extensions = []
 }) => {
   const active = useActive();
   const commands = useCommands();
 
   const initialState = React.useMemo(() => {
     return extensions.map((extension) => {
-      return [
-        extension.id, 
-        Object.assign({}, extension.initialState)
-      ] as const;
+      return [extension.id, Object.assign({}, extension.initialState)] as const;
     });
   }, [extensions]);
 
