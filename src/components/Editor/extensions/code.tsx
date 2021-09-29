@@ -14,6 +14,10 @@ import { CodeBlockExtension } from "remirror/extensions";
 import type { IExtensionFunction } from "./typing";
 import { CodeLanguageSelectionModal } from "./components/CodeLanguageSelectionModal";
 
+import sprite from './images/icons.svg'
+
+import { SVGIcon } from './components/SVGIcon'
+
 export interface ICodeExtensionConfig {}
 
 export interface ICodeExtensionState {
@@ -41,7 +45,9 @@ const extension: IExtensionFunction<
         typescript
       ]
     }),
-  getIcon: () => "</>",
+  getIcon: () => (
+    <SVGIcon href={`${sprite}#react-editor-code`} />
+  ),
   getName: () => "Code",
   getActive: (a) => a.codeBlock(),
   initialState: { modalOpen: false },

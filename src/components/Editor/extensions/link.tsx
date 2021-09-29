@@ -2,6 +2,10 @@ import { LinkExtension } from "remirror/extensions";
 
 import type { IExtensionFunction } from "./typing";
 
+import sprite from './images/icons.svg'
+
+import { SVGIcon } from './components/SVGIcon'
+
 import { LinkModal } from "./components/LinkModal";
 
 export interface ILinkExtensionConfig {}
@@ -18,7 +22,9 @@ const extension: IExtensionFunction<
   id: "jbcz.base.link",
   initialize: () => new LinkExtension({ autoLink: true }),
   initialState: { modalOpen: false },
-  getIcon: () => "Link",
+  getIcon: () => (
+    <SVGIcon href={`${sprite}#react-editor-link`} />
+  ),
   getName: () => "Code",
   getActive: (a) => a.link(),
   onIconClick: (_, __, setState) => setState({ modalOpen: true }),
