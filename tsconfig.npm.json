@@ -1,0 +1,11 @@
+{
+    "extends": "./tsconfig.json",
+    "target": "esnext",
+    "files": [
+        "src/components/Editor/index.ts"
+    ],
+    "include": ["src/components/Editor/**/*"],
+    "exclude": ["node_modules", "**/*.spec.ts"],
+    "noEmit": false,
+    "declaration": true,
+}

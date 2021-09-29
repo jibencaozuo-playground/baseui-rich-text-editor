@@ -6,9 +6,10 @@ import {
   EditorComponent,
   useRemirror,
   useActive,
+  useHelpers,
   useCommands
 } from "@remirror/react";
-import type { EditorState } from "@remirror/core";
+import type { RemirrorJSON } from "@remirror/core";
 
 import { Block } from "baseui/block";
 import { Button } from "baseui/button";
@@ -16,44 +17,48 @@ import { ButtonGroup } from "baseui/button-group";
 import type { IExtension } from "./extensions/typing";
 import { AnyExtension } from "@remirror/core";
 
-interface EditorChangeEvent {
+export interface EditorChangeEvent {
   target: IEditorRef;
   currentTarget: IEditorRef;
 }
 
-interface IEditorProps {
+export interface IEditorProps {
   extensions?: Readonly<IExtension<string, any, any>[]>;
   onChange?: (event: EditorChangeEvent) => void;
 }
 
-interface IEditorRef {
-  value: EditorState;
+export interface IEditorRef {
+  value: RemirrorJSON;
 }
 
-const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = ({
-  extensions = [],
-  onChange
-}, ref) => {
+const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = (
+  { extensions = [], onChange },
+  ref
+) => {
   const remirrorExtensions = React.useCallback(() => {
     return extensions
       .map((x) => x.initialize?.())
       .filter((x) => !!x) as AnyExtension[];
   }, [extensions]);
 
-  const { manager, state, setState } = useRemirror({
+  const internalEditorRef = React.useRef<IInternalEditorRef>(null);
+
+  const { manager, setState } = useRemirror({
     extensions: remirrorExtensions
   });
+
+  const currentEditorRef = internalEditorRef!.current!;
 
   const mockValue = React.useMemo(() => {
     return {
       get value() {
-        return state;
+        return currentEditorRef.getJSON();
       },
       set value(x) {
-        setState(x);
+        setState(manager.createState(x));
       }
     };
-  }, [state, setState]);
+  }, [currentEditorRef, setState, manager]);
 
   React.useImperativeHandle(ref, () => mockValue, [mockValue]);
 
@@ -66,7 +71,7 @@ const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = ({
 
   return (
     <Remirror manager={manager} onChange={handleChange}>
-      <InternalEditor extensions={extensions} />
+      <InternalEditor ref={internalEditorRef} extensions={extensions} />
     </Remirror>
   );
 };
@@ -77,11 +82,19 @@ interface IInternalEditorProps {
   extensions: IEditorProps["extensions"];
 }
 
-export const InternalEditor: React.FC<IInternalEditorProps> = ({
-  extensions = []
-}) => {
+interface IInternalEditorRef {
+  getJSON: ReturnType<typeof useHelpers>["getJSON"];
+}
+
+const _InternalEditor: React.ForwardRefRenderFunction<
+  IInternalEditorRef,
+  IInternalEditorProps
+> = ({ extensions = [] }, ref) => {
   const active = useActive();
   const commands = useCommands();
+  const { getJSON } = useHelpers();
+
+  React.useImperativeHandle(ref, () => ({ getJSON }), [getJSON]);
 
   const initialState = React.useMemo(() => {
     return extensions.map((extension) => {
@@ -155,3 +168,5 @@ export const InternalEditor: React.FC<IInternalEditorProps> = ({
     </Block>
   );
 };
+
+const InternalEditor = React.forwardRef(_InternalEditor);

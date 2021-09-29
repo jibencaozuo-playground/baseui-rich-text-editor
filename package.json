@@ -1,8 +1,8 @@
 {
   "name": "@jbcz/baseui-rich-text-editor",
-  "version": "0.0.0-dev.0",
-  "main": "dist/index.tsx",
-  "module": "dist/index.tsx",
+  "version": "0.0.0-dev.4",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
   "license": "MIT",
   "maintainers": [
     {
@@ -13,9 +13,10 @@
   "scripts": {
     "start": "react-scripts start",
     "build:cra": "react-scripts build",
-    "build:npm": "cross-env NODE_ENV=production && del-cli dist && make-dir dist && npx babel src/components/Editor --out-dir dist --copy-files",
+    "build:npm": "del-cli dist && make-dir dist && tsc --project ./tsconfig.npm.json --outDir dist --declaration",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "prepublishOnly": "yarn run build:npm"
   },
   "files": [
     "bin/**/*",
