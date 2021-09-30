@@ -2,7 +2,6 @@ import * as React from "react";
 import cn from "classnames";
 import merge from "lodash.merge";
 
-import { useStyletron } from "baseui";
 import { useMap } from "@react-hookz/web";
 
 import {
@@ -11,7 +10,7 @@ import {
   useRemirror,
   useActive,
   useHelpers,
-  useCommands
+  useCommands,
 } from "@remirror/react";
 import type { RemirrorJSON, AnyExtension } from "@remirror/core";
 
@@ -25,9 +24,11 @@ import styles from "./editor.module.scss";
 export interface EditorChangeEvent {
   target: IEditorRef;
   currentTarget: IEditorRef;
+  type: "change";
 }
 
 interface IEditorProps {
+  name?: string;
   extensions: Readonly<IExtension<string, any, any>[]>;
   onChange?: (event: EditorChangeEvent) => void;
   editorClassName?: string;
@@ -36,10 +37,12 @@ interface IEditorProps {
 
 export interface IEditorRef {
   value: RemirrorJSON;
+  type: "richtext",
+  name?: string,
 }
 
 const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = (
-  { extensions = [], editorClassName, buttonOverrides, onChange },
+  { extensions = [], editorClassName, buttonOverrides, onChange, name },
   ref
 ) => {
   const remirrorExtensions = React.useCallback(() => {
@@ -51,28 +54,31 @@ const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = (
   const internalEditorRef = React.useRef<IInternalEditorRef>(null);
 
   const { manager, setState } = useRemirror({
-    extensions: remirrorExtensions
+    extensions: remirrorExtensions,
   });
 
-  const mockValue = React.useMemo(() => {
+  const mockElement = React.useMemo(() => {
     return {
       get value() {
         return internalEditorRef?.current?.getJSON?.();
       },
       set value(x) {
         setState(manager.createState(x));
-      }
+      },
+      type: "richtext" as const,
+      name,
     };
-  }, [setState, manager]);
+  }, [internalEditorRef, setState, manager, name]);
 
-  React.useImperativeHandle(ref, () => mockValue, [mockValue]);
+  React.useImperativeHandle(ref, () => mockElement, [mockElement]);
 
-  const handleChange = () => {
+  const handleChange = React.useCallback(() => {
     onChange?.({
-      target: mockValue,
-      currentTarget: mockValue
+      target: mockElement,
+      currentTarget: mockElement,
+      type: "change",
     });
-  };
+  }, [onChange, mockElement]);
 
   return (
     <Remirror manager={manager} onChange={handleChange}>
@@ -104,7 +110,6 @@ const _InternalEditor: React.ForwardRefRenderFunction<
 > = ({ extensions = [], editorClassName, buttonOverrides }, ref) => {
   const active = useActive();
   const commands = useCommands();
-  const [css, theme] = useStyletron();
   const { getJSON } = useHelpers();
 
   React.useImperativeHandle(ref, () => ({ getJSON }), [getJSON]);
@@ -158,10 +163,10 @@ const _InternalEditor: React.ForwardRefRenderFunction<
             paddingBottom: 0,
             color: "#C4C4C4",
             ":hover": {
-              color: "#00ABCF"
-            }
-          }
-        }
+              color: "#00ABCF",
+            },
+          },
+        },
       },
       buttonOverrides
     );
@@ -173,11 +178,11 @@ const _InternalEditor: React.ForwardRefRenderFunction<
       backgroundColor="backgroundTertiary"
       overrides={{
         Block: {
-          style: {
+          style: ({ $theme }) => ({
             "--overrides-rmr-radius-border": "0",
-            "--overrides-rmr-color-text": theme.colors.primary
-          }
-        }
+            "--overrides-rmr-color-text": $theme.colors.primary,
+          }),
+        },
       }}
     >
       <Block display="flex">
