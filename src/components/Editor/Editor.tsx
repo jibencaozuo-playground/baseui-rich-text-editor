@@ -54,18 +54,16 @@ const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = (
     extensions: remirrorExtensions
   });
 
-  const currentEditorRef = internalEditorRef!.current!;
-
   const mockValue = React.useMemo(() => {
     return {
       get value() {
-        return currentEditorRef.getJSON();
+        return internalEditorRef?.current?.getJSON?.();
       },
       set value(x) {
         setState(manager.createState(x));
       }
     };
-  }, [currentEditorRef, setState, manager]);
+  }, [setState, manager]);
 
   React.useImperativeHandle(ref, () => mockValue, [mockValue]);
 
