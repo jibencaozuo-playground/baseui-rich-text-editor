@@ -1,11 +1,13 @@
 {
-    "extends": "./tsconfig.json",
-    "target": "esnext",
-    "files": [
-        "src/components/Editor/index.ts"
-    ],
-    "include": ["src/components/Editor/**/*"],
-    "exclude": ["node_modules", "**/*.spec.ts"],
+  "extends": "./tsconfig.json",
+  "target": "esnext",
+  "files": [
+    "src/components/Editor/index.ts"
+  ],
+  "include": ["src/components/Editor/**/*"],
+  "exclude": ["node_modules", "**/*.spec.ts"],
+  "compilerOptions": {
     "noEmit": false,
-    "declaration": true,
+  },
+  "declaration": true,
 }
