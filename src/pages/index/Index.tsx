@@ -1,8 +1,9 @@
 import * as React from "react";
 import { useAsync } from "@react-hookz/web";
+import { useForm } from 'react-hook-form';
 
 import { Editor, extensions } from "components/Editor";
-import type { IEditorRef } from "components/Editor"
+import { Button } from "baseui/button";
 
 const getExtensions = async () => {
   // TypeScript only allow 10 items at the same time.
@@ -31,24 +32,45 @@ const getExtensions = async () => {
   return [...result[0], ...result[1]] as const;
 };
 
+const initialJSON = {
+  "type": "doc",
+  "content": [{
+    "type": "paragraph",
+    "content": [{
+      "type": "text",
+      "text": "123123"
+    },
+    {
+      "type": "text",
+      "marks": [{
+        "type": "italic"
+      }],
+      "text": "2223"
+    }]
+  }]
+};
+
 export const Index: React.FC = () => {
   const [extensions, extensionActions] = useAsync(getExtensions, []);
-  const editorRef = React.useRef<IEditorRef>(null);
+  const { register, handleSubmit } = useForm()
+  const onSubmit = (data:any) => console.log(data);
 
   React.useEffect(() => {
     extensionActions.execute();
   }, [extensionActions]);
 
-  React.useEffect(() => {
-    window.addEventListener('click', () => {
-      if (editorRef.current) {
-        console.log(editorRef.current.value);
-      }
-    });
-  }, []);
-
   if (!extensions.result) {
     return <>Loading</>;
   }
-  return <Editor ref={editorRef} extensions={extensions.result} />;
+  return (
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      <Editor
+        extensions={extensions.result}
+        {...register('text', { value: initialJSON })}
+      />
+      <Button type="submit">submit</Button>
+    </form>
+  );
 };

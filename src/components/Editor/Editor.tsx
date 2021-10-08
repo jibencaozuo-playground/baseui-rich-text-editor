@@ -53,7 +53,7 @@ const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = (
 
   const internalEditorRef = React.useRef<IInternalEditorRef>(null);
 
-  const { manager, setState } = useRemirror({
+  const { manager, state, setState } = useRemirror({
     extensions: remirrorExtensions,
   });
 
@@ -81,7 +81,11 @@ const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = (
   }, [onChange, mockElement]);
 
   return (
-    <Remirror manager={manager} onChange={handleChange}>
+    <Remirror
+      manager={manager}
+      state={state}
+      onChange={handleChange}
+    >
       <InternalEditor
         ref={internalEditorRef}
         extensions={extensions}

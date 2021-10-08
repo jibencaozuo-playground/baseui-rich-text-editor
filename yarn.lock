@@ -1972,6 +1972,7 @@ __metadata:
     npm-install-peers: ^1.2.2
     react: ^17.0.2
     react-dom: ^17.0.2
+    react-hook-form: ^7.17.1
     react-scripts: 4.0.3
     remirror: 1.0.24
     sass: ^1.42.1
@@ -17966,6 +17967,15 @@ __metadata:
   peerDependencies:
     react: ^16.8.0 || ^17.0.0
   checksum: 520b12a4496be21b3228bbf938657f6c33f868e486a0cd355d8bec918129d2c1bf7aabecb20aecdb446a1fbdb61b16f680b5d15b998f544f1b5c0dc5c8914c40
+  languageName: node
+  linkType: hard
+
+"react-hook-form@npm:^7.17.1":
+  version: 7.17.1
+  resolution: "react-hook-form@npm:7.17.1"
+  peerDependencies:
+    react: ^16.8.0 || ^17
+  checksum: 9ef4a10a39e50c0c737c3531e744791ca1005ce1b225b45c38b2b6191557757de9f646db8675a00d47046790f0a3171aff7c99996e16e1a2f80f9a2c9dc18e4e
   languageName: node
   linkType: hard
 
