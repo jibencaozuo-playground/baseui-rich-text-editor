@@ -27,7 +27,7 @@ export interface EditorChangeEvent {
   type: "change";
 }
 
-interface IEditorProps {
+export interface IEditorProps {
   name?: string;
   extensions: Readonly<IExtension<string, any, any>[]>;
   onChange?: (event: EditorChangeEvent) => void;
