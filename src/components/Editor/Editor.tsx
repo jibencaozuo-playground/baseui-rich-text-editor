@@ -63,7 +63,7 @@ const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = (
         return internalEditorRef?.current?.getJSON?.();
       },
       set value(x) {
-        setState(manager.createState(x));
+        setState(manager.createState({ content: x }));
       },
       type: "richtext" as const,
       name,
