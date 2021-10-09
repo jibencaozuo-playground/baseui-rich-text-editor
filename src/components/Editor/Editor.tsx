@@ -11,6 +11,7 @@ import {
   useActive,
   useHelpers,
   useCommands,
+  UseRemirrorReturn,
 } from "@remirror/react";
 import type { RemirrorJSON, AnyExtension } from "@remirror/core";
 
@@ -57,28 +58,42 @@ const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = (
     extensions: remirrorExtensions,
   });
 
+  const [initValue, setInitValue] = React.useState<boolean>(false);
+
+  // rhf gets the value from ref after receiving the onchange
+  const stateRef = React.useRef<UseRemirrorReturn<AnyExtension>["state"] | null>();
+
   const mockElement = React.useMemo(() => {
     return {
       get value() {
-        return internalEditorRef?.current?.getJSON?.();
+        return stateRef?.current?.doc?.toJSON() || internalEditorRef?.current?.getJSON?.()
       },
       set value(x) {
-        setState(manager.createState({ content: x }));
+        if(initValue) {
+          setState(manager.createState({ content: x }));
+        } else {
+          setInitValue(true)
+          window.setTimeout(() => {
+            setState(manager.createState({ content: x }));
+          }, 0)
+        }
       },
       type: "richtext" as const,
       name,
     };
-  }, [internalEditorRef, setState, manager, name]);
+  }, [name, initValue, setState, manager]);
 
   React.useImperativeHandle(ref, () => mockElement, [mockElement]);
 
-  const handleChange = React.useCallback(() => {
+  const handleChange = React.useCallback((parameter) => {
+    setState(parameter.state);
+    stateRef.current = parameter.state;
     onChange?.({
       target: mockElement,
       currentTarget: mockElement,
       type: "change",
     });
-  }, [onChange, mockElement]);
+  }, [setState, onChange, mockElement]);
 
   return (
     <Remirror
@@ -199,6 +214,7 @@ const _InternalEditor: React.ForwardRefRenderFunction<
             <Button
               onClick={handleButtonClickCallbacks[x.id]}
               overrides={baseButtonOverrides}
+              type="button"
             >
               {x.getIcon()}
             </Button>
