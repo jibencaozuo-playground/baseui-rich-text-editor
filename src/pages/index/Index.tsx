@@ -52,8 +52,9 @@ const initialJSON = {
 
 export const Index: React.FC = () => {
   const [extensions, extensionActions] = useAsync(getExtensions, []);
-  const { register, handleSubmit } = useForm()
+  const { register, handleSubmit, setValue } = useForm()
   const onSubmit = (data:any) => console.log(data);
+  const onClick = () => setValue('text', initialJSON);
 
   React.useEffect(() => {
     extensionActions.execute();
@@ -71,6 +72,10 @@ export const Index: React.FC = () => {
         {...register('text', { value: initialJSON })}
       />
       <Button type="submit">submit</Button>
+      <Button
+        type="button"
+        onClick={onClick}
+      >reset</Button>
     </form>
   );
 };

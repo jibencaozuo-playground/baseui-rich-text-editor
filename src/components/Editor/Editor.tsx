@@ -59,6 +59,7 @@ const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = (
   });
 
   const [initValue, setInitValue] = React.useState<boolean>(false);
+  const [blockFirstOnChange, setBlockFirstOnChange] = React.useState<boolean>(true);
 
   // rhf gets the value from ref after receiving the onchange
   const stateRef = React.useRef<UseRemirrorReturn<AnyExtension>["state"] | null>();
@@ -69,12 +70,14 @@ const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = (
         return stateRef?.current?.doc?.toJSON() || internalEditorRef?.current?.getJSON?.()
       },
       set value(x) {
+        const newState = manager.createState({ content: x })
+        stateRef.current = newState
         if(initValue) {
-          setState(manager.createState({ content: x }));
+          setState(newState);
         } else {
           setInitValue(true)
           window.setTimeout(() => {
-            setState(manager.createState({ content: x }));
+            setState(newState);
           }, 0)
         }
       },
@@ -88,12 +91,16 @@ const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = (
   const handleChange = React.useCallback((parameter) => {
     setState(parameter.state);
     stateRef.current = parameter.state;
-    onChange?.({
-      target: mockElement,
-      currentTarget: mockElement,
-      type: "change",
-    });
-  }, [setState, onChange, mockElement]);
+    if(!blockFirstOnChange) {
+      onChange?.({
+        target: mockElement,
+        currentTarget: mockElement,
+        type: "change",
+      });
+    } else {
+      setBlockFirstOnChange(false)
+    }
+  }, [setState, blockFirstOnChange, onChange, mockElement]);
 
   return (
     <Remirror
