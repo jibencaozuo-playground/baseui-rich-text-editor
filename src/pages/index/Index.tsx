@@ -56,6 +56,9 @@ export const Index: React.FC = () => {
   const onSubmit = (data:any) => console.log(data);
   const onClick = () => setValue('text', initialJSON);
 
+  const [editable, setEditable] = React.useState(true);
+  const [count, setCount] = React.useState(0);
+
   React.useEffect(() => {
     extensionActions.execute();
   }, [extensionActions]);
@@ -70,12 +73,25 @@ export const Index: React.FC = () => {
       <Editor
         extensions={extensions.result}
         {...register('text', { value: initialJSON })}
+        editable={editable}
+        onWordCountChange={(count) => setCount(count)}
       />
       <Button type="submit">submit</Button>
       <Button
         type="button"
         onClick={onClick}
-      >reset</Button>
+      >
+        reset
+      </Button>
+      <Button
+        type="button"
+        onClick={() => { setEditable(!editable) }}
+      >
+        editable: {editable ? 'true' : 'false'}
+      </Button>
+      <p>
+        text count: {count}
+      </p>
     </form>
   );
 };

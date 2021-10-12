@@ -20,7 +20,7 @@ export const IMAGE_ALT_ATOM = atom<string | undefined>(undefined);
 
 export const ImageUploadModal: React.FC<
   IAdditionalComponentProps<IImageExtensionState>
-> = ({ commands, state, setState }) => {
+> = ({ commands, state, setState, overrides }) => {
   const isOpen = state.modalOpen;
   const setIsOpen = React.useCallback(
     (x: boolean) => {
@@ -63,7 +63,11 @@ export const ImageUploadModal: React.FC<
   );
 
   return (
-    <Modal onClose={handleClose} isOpen={isOpen}>
+    <Modal
+      onClose={handleClose}
+      isOpen={isOpen}
+      overrides={overrides?.Model}
+    >
       <ModalHeader>图片</ModalHeader>
       <ModalBody>
         <FileUploader

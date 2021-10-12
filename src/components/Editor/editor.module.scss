@@ -2,6 +2,9 @@
   --rmr-radius-border: var(--overrides-rmr-radius-border) !important;
   --rmr-color-text: var(--overrides-rmr-color-text) !important;
   height: 100%;
+  :global(.remirror-editor-wrapper) {
+    padding-top: 0;
+  }
   :global(.ProseMirror) {
     font-size: 14px;
     padding: 0 !important;
