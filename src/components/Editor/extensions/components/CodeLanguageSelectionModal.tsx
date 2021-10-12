@@ -38,7 +38,7 @@ export const LANGUAGES: ILanguageOption[] = [
 
 export const CodeLanguageSelectionModal: React.FC<
   IAdditionalComponentProps<ICodeExtensionState>
-> = ({ commands, state, setState }) => {
+> = ({ commands, state, setState, overrides }) => {
   const isOpen = state.modalOpen;
   const setIsOpen = React.useCallback(
     (x: boolean) => {
@@ -74,7 +74,11 @@ export const CodeLanguageSelectionModal: React.FC<
   }, [selectedProgrammingLanguage, handleClose, commands]);
 
   return (
-    <Modal onClose={handleClose} isOpen={isOpen}>
+    <Modal
+      onClose={handleClose}
+      isOpen={isOpen}
+      overrides={overrides?.Model}
+    >
       <ModalHeader>选择语言</ModalHeader>
       <ModalBody>
         <Select

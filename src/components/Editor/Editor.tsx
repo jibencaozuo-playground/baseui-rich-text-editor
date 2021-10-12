@@ -17,10 +17,12 @@ import type { RemirrorJSON, AnyExtension } from "@remirror/core";
 
 import { Block } from "baseui/block";
 import { Button, ButtonOverrides } from "baseui/button";
-import { ButtonGroup } from "baseui/button-group";
+import { ButtonGroup, ButtonGroupOverrides } from "baseui/button-group";
 
 import type { IExtension } from "./extensions/typing";
 import styles from "./editor.module.scss";
+import { ModalOverrides } from "baseui/modal";
+import { StyleObject } from "styletron-react";
 
 export interface EditorChangeEvent {
   target: IEditorRef;
@@ -28,12 +30,21 @@ export interface EditorChangeEvent {
   type: "change";
 }
 
+export interface IInterfaceOverride {
+  ToolbarBlock?: ButtonGroupOverrides;
+  ToolbarButton?: ButtonOverrides;
+  EditorContainer?: StyleObject;
+  Model?: ModalOverrides;
+}
+
 export interface IEditorProps {
   name?: string;
   extensions: Readonly<IExtension<string, any, any>[]>;
   onChange?: (event: EditorChangeEvent) => void;
+  onWordCountChange?: (count: number) => void;
   editorClassName?: string;
-  buttonOverrides?: ButtonOverrides;
+  editable?: boolean;
+  overrides?: IInterfaceOverride;
 }
 
 export interface IEditorRef {
@@ -42,8 +53,18 @@ export interface IEditorRef {
   name?: string,
 }
 
+const StylesContext = React.createContext<IInterfaceOverride>({});
+
 const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = (
-  { extensions = [], editorClassName, buttonOverrides, onChange, name },
+  {
+    extensions = [],
+    editorClassName,
+    onChange,
+    onWordCountChange,
+    name,
+    overrides = {},
+    editable,
+  },
   ref
 ) => {
   const remirrorExtensions = React.useCallback(() => {
@@ -88,6 +109,7 @@ const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = (
 
   React.useImperativeHandle(ref, () => mockElement, [mockElement]);
 
+
   const handleChange = React.useCallback((parameter) => {
     setState(parameter.state);
     stateRef.current = parameter.state;
@@ -100,21 +122,32 @@ const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = (
     } else {
       setBlockFirstOnChange(false)
     }
-  }, [setState, blockFirstOnChange, onChange, mockElement]);
+    onWordCountChange?.(internalEditorRef?.current?.getText({ state: parameter.state }).length || 0)
+  }, [
+    setState,
+    blockFirstOnChange,
+    onWordCountChange,
+    onChange,
+    mockElement
+  ]);
 
   return (
-    <Remirror
-      manager={manager}
-      state={state}
-      onChange={handleChange}
-    >
-      <InternalEditor
-        ref={internalEditorRef}
-        extensions={extensions}
-        editorClassName={editorClassName}
-        buttonOverrides={buttonOverrides}
-      />
-    </Remirror>
+    <StylesContext.Provider value={overrides}>
+      <Remirror
+        manager={manager}
+        state={state}
+        onChange={handleChange}
+        editable={editable}
+      >
+        <InternalEditor
+          ref={internalEditorRef}
+          extensions={extensions}
+          editorClassName={editorClassName}
+          overrides={overrides}
+          editable={editable}
+        />
+      </Remirror>
+    </StylesContext.Provider>
   );
 };
 
@@ -123,22 +156,24 @@ export const Editor = React.forwardRef(_Editor);
 interface IInternalEditorProps {
   extensions: IEditorProps["extensions"];
   editorClassName?: string;
-  buttonOverrides?: ButtonOverrides;
+  editable?: boolean;
+  overrides?: IInterfaceOverride;
 }
 
 interface IInternalEditorRef {
   getJSON: ReturnType<typeof useHelpers>["getJSON"];
+  getText: ReturnType<typeof useHelpers>["getText"];
 }
 
 const _InternalEditor: React.ForwardRefRenderFunction<
   IInternalEditorRef,
   IInternalEditorProps
-> = ({ extensions = [], editorClassName, buttonOverrides }, ref) => {
+> = ({ extensions = [], editorClassName, overrides, editable }, ref) => {
   const active = useActive();
   const commands = useCommands();
-  const { getJSON } = useHelpers();
+  const { getJSON, getText } = useHelpers();
 
-  React.useImperativeHandle(ref, () => ({ getJSON }), [getJSON]);
+  React.useImperativeHandle(ref, () => ({ getJSON, getText }), [getJSON, getText ]);
 
   const initialState = React.useMemo(() => {
     return extensions.map((extension) => {
@@ -194,45 +229,51 @@ const _InternalEditor: React.ForwardRefRenderFunction<
           },
         },
       },
-      buttonOverrides
+      overrides?.ToolbarButton || {}
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [buttonOverrides]);
+  }, [overrides]);
 
   return (
     <Block
       backgroundColor="backgroundTertiary"
       overrides={{
         Block: {
-          style: ({ $theme }) => ({
-            "--overrides-rmr-radius-border": "0",
-            "--overrides-rmr-color-text": $theme.colors.primary,
-          }),
+          style: ({ $theme }) => (merge(
+            {
+              "--overrides-rmr-radius-border": "0",
+              "--overrides-rmr-color-text": $theme.colors.primary,
+            },
+            overrides?.EditorContainer || {},
+          ) as any),
         },
       }}
     >
-      <Block display="flex">
-        {extensions.map((x) => (
-          <ButtonGroup
-            key={x.id}
-            mode="checkbox"
-            selected={x.getActive(active) ? [0] : []}
-          >
-            <Button
-              onClick={handleButtonClickCallbacks[x.id]}
-              overrides={baseButtonOverrides}
-              type="button"
+      {editable &&(
+        <Block display="flex">
+          {extensions.map((x) => (
+            <ButtonGroup
+              key={x.id}
+              mode="checkbox"
+              selected={x.getActive(active) ? [0] : []}
+              overrides={overrides?.ToolbarBlock}
             >
-              {x.getIcon()}
-            </Button>
-          </ButtonGroup>
-        ))}
-      </Block>
+              <Button
+                onClick={handleButtonClickCallbacks[x.id]}
+                overrides={baseButtonOverrides}
+                type="button"
+              >
+                {x.getIcon()}
+              </Button>
+            </ButtonGroup>
+          ))}
+        </Block>
+      )}
       <Block
         className={cn(
-          editorClassName,
           "remirror-theme",
-          styles.editorComponentBox
+          styles.editorComponentBox,
+          editorClassName,
         )}
       >
         <EditorComponent />
@@ -243,13 +284,18 @@ const _InternalEditor: React.ForwardRefRenderFunction<
         if (!Component) return null;
 
         return (
-          <Component
-            key={x.id}
-            state={stateMap.get(x.id)}
-            setState={setStates[x.id]}
-            commands={commands}
-            active={active}
-          />
+          <StylesContext.Consumer>
+            {overrides => (
+              <Component
+                key={x.id}
+                state={stateMap.get(x.id)}
+                setState={setStates[x.id]}
+                commands={commands}
+                active={active}
+                overrides={overrides}
+              />
+            )}
+          </StylesContext.Consumer>
         );
       })}
     </Block>

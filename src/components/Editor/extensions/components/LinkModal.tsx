@@ -17,7 +17,7 @@ export const LINK_URL_ATOM = atom<string | undefined>(undefined);
 
 export const LinkModal: React.FC<
   IAdditionalComponentProps<IImageExtensionState>
-> = ({ commands, state, setState }) => {
+> = ({ commands, state, setState, overrides }) => {
   const isOpen = state.modalOpen;
   const setIsOpen = React.useCallback(
     (x: boolean) => {
@@ -49,7 +49,11 @@ export const LinkModal: React.FC<
   }, [commands, href, handleClose]);
 
   return (
-    <Modal onClose={handleClose} isOpen={isOpen}>
+    <Modal
+      onClose={handleClose}
+      isOpen={isOpen}
+      overrides={overrides?.Model}
+    >
       <ModalHeader>插入链接</ModalHeader>
       <ModalBody>
         <Input onChange={handleUrlChange} value={href || ""} />

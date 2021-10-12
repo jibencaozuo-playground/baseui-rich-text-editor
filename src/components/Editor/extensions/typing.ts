@@ -3,11 +3,14 @@ import * as React from "react";
 import type { useActive, useCommands } from "@remirror/react";
 import type { AnyExtension } from "@remirror/core";
 
+import type { IInterfaceOverride } from "../../Editor"
+
 export interface IAdditionalComponentProps<State> {
   commands: ReturnType<typeof useCommands>;
   active: ReturnType<typeof useActive>;
   state: State;
   setState: (x: State) => void;
+  overrides?: IInterfaceOverride;
 }
 
 export interface IExtension<Id extends string, Config = void, State = void> {
