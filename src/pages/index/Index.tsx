@@ -91,6 +91,12 @@ export const Index: React.FC = () => {
             },
           },
         }}
+        events={{
+          onImageUpload: async (src: string) => {
+            console.log(src);
+            return src;
+          },
+        }}
       />
       <Button type="submit">submit</Button>
       <Button
