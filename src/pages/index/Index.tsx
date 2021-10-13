@@ -25,7 +25,9 @@ const getExtensions = async () => {
       extensions.code(),
       extensions.hr(),
       extensions.link(),
-      extensions.image()
+      extensions.image(),
+      extensions.undo(),
+      extensions.redo()
     ])
   ]);
 
@@ -75,6 +77,20 @@ export const Index: React.FC = () => {
         {...register('text', { value: initialJSON })}
         editable={editable}
         onWordCountChange={(count) => setCount(count)}
+        overrides={{
+          ToolbarButton: {
+            BaseButton: {
+              style: ({ $isSelected }) => {
+                return {
+                  ':hover': {
+                    backgroundColor: 'rgba(255, 143, 0, 0.2)',
+                    color: '#FF8F00',
+                  }
+                }
+              }
+            },
+          },
+        }}
       />
       <Button type="submit">submit</Button>
       <Button

@@ -52,4 +52,10 @@
   <symbol id="react-editor-ul" viewBox="0 0 24 24">
     <path d="M6.3 5.17H4.05v1.65H6.3zm0 6H4.05v1.65H6.3zm0 6H4.05v1.65H6.3zm15-12H8.55v1.65H21.3zm0 6H8.55v1.65H21.3zm0 6H8.55v1.65H21.3z" />
   </symbol>
+  <symbol id="react-editor-undo" viewBox="0 0 24 24">
+    <path d="M12.94 7.65h-2.71V4.5L4.39 7.65V9h8.55a3.91 3.91 0 0 1 0 7.81h-7v1.31h7a5.22 5.22 0 0 0 0-10.44z" />
+  </symbol>
+  <symbol id="react-editor-redo" viewBox="0 0 24 24">
+    <path d="M9.54 9h8.56V7.65L12.28 4.5v3.15H9.54a5.22 5.22 0 0 0 0 10.44h7v-1.31h-7a3.91 3.91 0 0 1 0-7.78z" />
+  </symbol>
 </svg>
