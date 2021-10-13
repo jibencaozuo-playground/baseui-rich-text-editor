@@ -18,11 +18,13 @@ import type { RemirrorJSON, AnyExtension } from "@remirror/core";
 import { Block } from "baseui/block";
 import { Button, ButtonOverrides } from "baseui/button";
 import { ButtonGroup, ButtonGroupOverrides } from "baseui/button-group";
+import { mergeOverrides } from "baseui";
 
 import type { IExtension } from "./extensions/typing";
 import styles from "./editor.module.scss";
 import { ModalOverrides } from "baseui/modal";
 import { StyleObject } from "styletron-react";
+import { Overrides } from "baseui/overrides";
 
 export interface EditorChangeEvent {
   target: IEditorRef;
@@ -63,7 +65,7 @@ const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = (
     onWordCountChange,
     name,
     overrides = {},
-    editable,
+    editable = true,
   },
   ref
 ) => {
@@ -212,7 +214,7 @@ const _InternalEditor: React.ForwardRefRenderFunction<
   }, [commands, extensions, setStates, stateMap]);
 
   const baseButtonOverrides = React.useMemo<ButtonOverrides>(() => {
-    return merge(
+    return mergeOverrides(
       {
         BaseButton: {
           style: {
@@ -229,9 +231,8 @@ const _InternalEditor: React.ForwardRefRenderFunction<
           },
         },
       },
-      overrides?.ToolbarButton || {}
+      (overrides?.ToolbarButton || {}) as Overrides<unknown>
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [overrides]);
 
   return (
@@ -244,7 +245,7 @@ const _InternalEditor: React.ForwardRefRenderFunction<
               "--overrides-rmr-radius-border": "0",
               "--overrides-rmr-color-text": $theme.colors.primary,
             },
-            overrides?.EditorContainer || {},
+            (overrides?.EditorContainer || {}) as Overrides<unknown>
           ) as any),
         },
       }}

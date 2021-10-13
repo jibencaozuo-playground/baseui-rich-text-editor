@@ -13,5 +13,7 @@ export const extensions = {
   strike: async () => (await import("./strike")).default(),
   sub: async () => (await import("./sub")).default(),
   sup: async () => (await import("./sup")).default(),
-  ul: async () => (await import("./ul")).default()
+  ul: async () => (await import("./ul")).default(),
+  undo: async () => (await import("./undo")).default(),
+  redo: async () => (await import("./redo")).default()
 };
