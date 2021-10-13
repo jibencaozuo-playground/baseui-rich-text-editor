@@ -17,6 +17,10 @@ import type { IAdditionalComponentProps } from "../typing";
 import { useStyletron } from "styletron-react";
 import { Button } from "baseui/button";
 
+import { EventsContext } from "../../Editor";
+import { mergeOverrides } from "baseui";
+import { Overrides } from "baseui/overrides";
+
 export const IMAGE_URL_ATOM = atom<string | undefined>(undefined);
 export const IMAGE_ALT_ATOM = atom<string | undefined>(undefined);
 
@@ -32,13 +36,16 @@ export const ImageUploadModal: React.FC<
     [setState]
   );
 
+  const events = React.useContext(EventsContext);
+
   const [alt, setAlt] = useAtom(IMAGE_ALT_ATOM);
   const [src, setSrc] = useAtom(IMAGE_URL_ATOM);
 
   const handleClose = React.useCallback(() => {
     setIsOpen(false);
     setAlt(undefined);
-  }, [setIsOpen, setAlt]);
+    setSrc(undefined);
+  }, [setIsOpen, setAlt, setSrc]);
 
   const handleAltChange = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,22 +54,31 @@ export const ImageUploadModal: React.FC<
     [setAlt]
   );
 
-  const handleSubmit = React.useCallback(() => {
+  const handleSubmit = React.useCallback(async () => {
     if (src) {
-      commands.insertImage({ src, alt });
+      try {
+        if(events?.onImageUpload) {
+          const imageURL = await events?.onImageUpload(src)
+          commands.insertImage({ src: imageURL, alt });
+        } else {
+          commands.insertImage({ src, alt });
+        }
+      } catch (error) {
+        console.error(error)
+      }
     }
-
     handleClose();
-  }, [commands, alt, src, handleClose]);
+  }, [src, handleClose, events, commands, alt]);
 
   const handleDrop = React.useCallback<DropFilesEventHandler>(
     (acceptedFiles) => {
       const file = acceptedFiles[0];
       if (acceptedFiles[0]) {
+        if(src) URL.revokeObjectURL(src);
         setSrc(URL.createObjectURL(file));
       }
     },
-    [setSrc]
+    [setSrc, src]
   );
 
   return (
@@ -90,13 +106,13 @@ export const ImageUploadModal: React.FC<
               />
             </div>
             <Button
-              overrides={{
+              overrides={mergeOverrides({
                 BaseButton: {
-                  style: ({ $theme }) => ({
+                  style: () => ({
                     width: '100%'
                   })
                 }
-              }}
+              }, overrides?.ReselectImageButton as Overrides<unknown>)}
               onClick={() => setSrc(undefined)}
             >
               点击替换图片
@@ -125,8 +141,8 @@ export const ImageUploadModal: React.FC<
         />
       </ModalBody>
       <ModalFooter>
-        <ModalButton onClick={handleClose}>取消</ModalButton>
-        <ModalButton onClick={handleSubmit}>插入</ModalButton>
+        <ModalButton overrides={overrides?.ModalButton} onClick={handleClose}>取消</ModalButton>
+        <ModalButton overrides={overrides?.ModalButton} onClick={handleSubmit}>插入</ModalButton>
       </ModalFooter>
     </Modal>
   );

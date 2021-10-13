@@ -35,8 +35,14 @@ export interface EditorChangeEvent {
 export interface IInterfaceOverride {
   ToolbarBlock?: ButtonGroupOverrides;
   ToolbarButton?: ButtonOverrides;
+  ReselectImageButton?: ButtonOverrides;
   EditorContainer?: StyleObject;
   Model?: ModalOverrides;
+  ModalButton?: ButtonOverrides;
+}
+
+export interface IInterfaceEvents {
+  onImageUpload?: (blobURL: string) => Promise<string>;
 }
 
 export interface IEditorProps {
@@ -47,6 +53,7 @@ export interface IEditorProps {
   editorClassName?: string;
   editable?: boolean;
   overrides?: IInterfaceOverride;
+  events?: IInterfaceEvents;
 }
 
 export interface IEditorRef {
@@ -56,6 +63,7 @@ export interface IEditorRef {
 }
 
 const StylesContext = React.createContext<IInterfaceOverride>({});
+export const EventsContext = React.createContext<IInterfaceEvents | undefined>({});
 
 const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = (
   {
@@ -66,6 +74,7 @@ const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = (
     name,
     overrides = {},
     editable = true,
+    events,
   },
   ref
 ) => {
@@ -135,20 +144,22 @@ const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = (
 
   return (
     <StylesContext.Provider value={overrides}>
-      <Remirror
-        manager={manager}
-        state={state}
-        onChange={handleChange}
-        editable={editable}
-      >
-        <InternalEditor
-          ref={internalEditorRef}
-          extensions={extensions}
-          editorClassName={editorClassName}
-          overrides={overrides}
+      <EventsContext.Provider value={events}>
+        <Remirror
+          manager={manager}
+          state={state}
+          onChange={handleChange}
           editable={editable}
-        />
-      </Remirror>
+        >
+          <InternalEditor
+            ref={internalEditorRef}
+            extensions={extensions}
+            editorClassName={editorClassName}
+            overrides={overrides}
+            editable={editable}
+          />
+        </Remirror>
+      </EventsContext.Provider>
     </StylesContext.Provider>
   );
 };

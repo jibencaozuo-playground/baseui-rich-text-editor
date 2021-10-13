@@ -4,6 +4,7 @@ import type { useActive, useCommands } from "@remirror/react";
 import type { AnyExtension } from "@remirror/core";
 
 import type { IInterfaceOverride } from "../../Editor"
+import type { IInterfaceEvents } from "../../Editor"
 
 export interface IAdditionalComponentProps<State> {
   commands: ReturnType<typeof useCommands>;
@@ -11,6 +12,7 @@ export interface IAdditionalComponentProps<State> {
   state: State;
   setState: (x: State) => void;
   overrides?: IInterfaceOverride;
+  events?: IInterfaceEvents;
 }
 
 export interface IExtension<Id extends string, Config = void, State = void> {
