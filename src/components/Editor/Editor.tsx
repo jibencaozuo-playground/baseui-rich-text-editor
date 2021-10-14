@@ -296,10 +296,9 @@ const _InternalEditor: React.ForwardRefRenderFunction<
         if (!Component) return null;
 
         return (
-          <StylesContext.Consumer>
+          <StylesContext.Consumer key={x.id}>
             {overrides => (
               <Component
-                key={x.id}
                 state={stateMap.get(x.id)}
                 setState={setStates[x.id]}
                 commands={commands}
