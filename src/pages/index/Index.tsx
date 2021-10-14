@@ -25,7 +25,7 @@ const getExtensions = async () => {
       extensions.code(),
       extensions.hr(),
       extensions.link(),
-      extensions.image(),
+      extensions.image({ enableResizing: false }),
       extensions.undo(),
       extensions.redo()
     ])

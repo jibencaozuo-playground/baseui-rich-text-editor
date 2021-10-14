@@ -1,3 +1,5 @@
+import { IImageExtensionConfig } from "./image";
+
 export const extensions = {
   bold: async () => (await import("./bold")).default(),
   code: async () => (await import("./code")).default(),
@@ -5,7 +7,7 @@ export const extensions = {
   h2: async () => (await import("./h2")).default(),
   h3: async () => (await import("./h3")).default(),
   hr: async () => (await import("./hr")).default(),
-  image: async () => (await import("./image")).default(),
+  image: async (config?: IImageExtensionConfig) => (await import("./image")).default(config),
   italic: async () => (await import("./italic")).default(),
   link: async () => (await import("./link")).default(),
   ol: async () => (await import("./ol")).default(),

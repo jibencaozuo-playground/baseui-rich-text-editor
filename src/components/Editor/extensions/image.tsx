@@ -7,7 +7,9 @@ import { SVGIcon } from './components/SVGIcon'
 
 import { ImageUploadModal } from "./components/ImageUploadModal";
 
-export interface IImageExtensionConfig {}
+export interface IImageExtensionConfig {
+  enableResizing?: boolean
+}
 
 export interface IImageExtensionState {
   modalOpen: boolean;
@@ -17,9 +19,14 @@ const extension: IExtensionFunction<
   "jbcz.base.image",
   IImageExtensionConfig,
   IImageExtensionState
-> = () => ({
+> = (config) => ({
   id: "jbcz.base.image",
-  initialize: () => new ImageExtension({ enableResizing: true }),
+  initialize: () => new ImageExtension({
+    enableResizing: (
+      config?.enableResizing !== undefined ?
+      config?.enableResizing : true
+    )
+  }),
   initialState: { modalOpen: false },
   getIcon: () => (
     <SVGIcon href={`${sprite}#react-editor-image`} />

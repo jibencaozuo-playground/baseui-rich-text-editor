@@ -62,9 +62,9 @@ export const ImageUploadModal: React.FC<
         if(events?.onImageUpload) {
           setDisabled(true)
           const imageURL = await events?.onImageUpload(src)
-          commands.insertImage({ src: imageURL, alt });
+          commands.insertImage({ src: imageURL, alt, title: alt });
         } else {
-          commands.insertImage({ src, alt });
+          commands.insertImage({ src, alt, title: alt });
         }
       } catch (error) {
         console.error(error)
