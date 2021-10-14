@@ -41,6 +41,8 @@ export const ImageUploadModal: React.FC<
   const [alt, setAlt] = useAtom(IMAGE_ALT_ATOM);
   const [src, setSrc] = useAtom(IMAGE_URL_ATOM);
 
+  const [disabled, setDisabled] = React.useState<boolean>(false);
+
   const handleClose = React.useCallback(() => {
     setIsOpen(false);
     setAlt(undefined);
@@ -58,6 +60,7 @@ export const ImageUploadModal: React.FC<
     if (src) {
       try {
         if(events?.onImageUpload) {
+          setDisabled(true)
           const imageURL = await events?.onImageUpload(src)
           commands.insertImage({ src: imageURL, alt });
         } else {
@@ -65,6 +68,8 @@ export const ImageUploadModal: React.FC<
         }
       } catch (error) {
         console.error(error)
+      } finally {
+        setDisabled(false)
       }
     }
     handleClose();
@@ -132,17 +137,31 @@ export const ImageUploadModal: React.FC<
               console.log("canceled");
             }}
             onDrop={handleDrop}
+            disabled={disabled}
           />
         </div>
         <Input
           onChange={handleAltChange}
           placeholder="请输入图片注释"
           value={alt || ""}
+          disabled={disabled}
         />
       </ModalBody>
       <ModalFooter>
-        <ModalButton overrides={overrides?.ModalButton} onClick={handleClose}>取消</ModalButton>
-        <ModalButton overrides={overrides?.ModalButton} onClick={handleSubmit}>插入</ModalButton>
+        <ModalButton
+          overrides={overrides?.ModalButton}
+          onClick={handleClose}
+          disabled={disabled}
+        >
+          取消
+        </ModalButton>
+        <ModalButton
+          overrides={overrides?.ModalButton}
+          onClick={handleSubmit}
+          disabled={disabled}
+        >
+          插入
+        </ModalButton>
       </ModalFooter>
     </Modal>
   );
