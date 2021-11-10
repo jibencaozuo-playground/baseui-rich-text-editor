@@ -50,6 +50,7 @@ export interface IEditorProps {
   extensions: Readonly<IExtension<string, any, any>[]>;
   onChange?: (event: EditorChangeEvent) => void;
   onWordCountChange?: (count: number) => void;
+  onTextChange?: (content: string) => void;
   editorClassName?: string;
   editable?: boolean;
   overrides?: IInterfaceOverride;
@@ -71,6 +72,7 @@ const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = (
     editorClassName,
     onChange,
     onWordCountChange,
+    onTextChange,
     name,
     overrides = {},
     editable = true,
@@ -134,6 +136,8 @@ const _Editor: React.ForwardRefRenderFunction<IEditorRef, IEditorProps> = (
       setBlockFirstOnChange(false)
     }
     onWordCountChange?.(internalEditorRef?.current?.getText({ state: parameter.state }).length || 0)
+    onTextChange?.(internalEditorRef?.current?.getText({ state: parameter.state }) || '')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     setState,
     blockFirstOnChange,
